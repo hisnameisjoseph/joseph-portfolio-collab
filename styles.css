@@ -301,8 +301,8 @@ section {
 .skills-section {
     background: var(--bg-secondary);
     border-radius: var(--radius);
-    margin: 2rem;
-    max-width: 1160px;
+    margin: 0 auto 2rem;
+    max-width: 1200px;
 }
 
 .skills-grid {
@@ -362,6 +362,15 @@ section {
     display: flex;
     align-items: center;
     gap: 1rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.cert-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    cursor: pointer;
 }
 
 .cert-badge.aws {
@@ -572,8 +581,8 @@ section {
     text-align: center;
     background: var(--bg-secondary);
     border-radius: var(--radius);
-    margin: 2rem;
-    max-width: 1160px;
+    margin: 0 auto 2rem;
+    max-width: 1200px;
 }
 
 .contact-text {

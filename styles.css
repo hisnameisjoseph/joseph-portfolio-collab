@@ -362,6 +362,15 @@ section {
     display: flex;
     align-items: center;
     gap: 1rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.cert-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    cursor: pointer;
 }
 
 .cert-badge.aws {

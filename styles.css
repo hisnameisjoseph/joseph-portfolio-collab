@@ -301,8 +301,8 @@ section {
 .skills-section {
     background: var(--bg-secondary);
     border-radius: var(--radius);
-    margin: 2rem;
-    max-width: 1160px;
+    margin: 0 auto 2rem;
+    max-width: 1200px;
 }
 
 .skills-grid {
@@ -572,8 +572,8 @@ section {
     text-align: center;
     background: var(--bg-secondary);
     border-radius: var(--radius);
-    margin: 2rem;
-    max-width: 1160px;
+    margin: 0 auto 2rem;
+    max-width: 1200px;
 }
 
 .contact-text {

@@ -75,5 +75,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 50);
     }
 
+    const latestActivityData = null; // STRAVA_PLACEHOLDER
+
+    async function renderLatestActivity(activity) {
+        const container = document.getElementById('strava-latest');
+        if (!container) return;
+
+        if (!activity || activity.error) {
+            container.innerHTML = `<p>Unable to load Strava activity data.</p><p>${activity?.error ?? 'No data'}</p>`;
+            return;
+        }
+
+        const distanceKm = (activity.distance / 1000).toFixed(2);
+        const movingTime = new Date(activity.moving_time * 1000).toISOString().substr(11, 8);
+        const paceMins = activity.average_speed > 0 ? ((1000 / activity.average_speed) / 60).toFixed(2) : 'N/A';
+        const startLocal = new Date(activity.start_date_local).toLocaleString();
+
+        container.innerHTML = `
+            <h4>${activity.name}</h4>
+            <p><strong>Type:</strong> ${activity.type}</p>
+            <p><strong>Date:</strong> ${startLocal}</p>
+            <p><strong>Distance:</strong> ${distanceKm} km</p>
+            <p><strong>Moving Time:</strong> ${movingTime}</p>
+            <p><strong>Avg Speed:</strong> ${(activity.average_speed * 3.6).toFixed(2)} km/h</p>
+            <p><strong>Avg Pace:</strong> ${paceMins} min/km</p>
+            ${activity.total_elevation_gain ? `<p><strong>Elevation gain:</strong> ${activity.total_elevation_gain.toFixed(1)} m</p>` : ''}
+            <p><strong>Link:</strong> <a href="https://www.strava.com/activities/${activity.id}" target="_blank" rel="noopener noreferrer">View on Strava</a></p>
+        `;
+    }
+
+    function loadStravaLatest() {
+        if (!latestActivityData) {
+            renderLatestActivity({ error: 'Strava data not available. Check build process.' });
+            return;
+        }
+        renderLatestActivity(latestActivityData);
+    }
+
+    loadStravaLatest();
+
     console.log('🎯 Joseph Ho Portfolio loaded');
 });

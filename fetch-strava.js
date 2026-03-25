@@ -27,14 +27,17 @@ async function refreshStravaToken() {
 
     if (!resp.ok) {
         const errorText = await resp.text();
+        console.log('Refresh response status:', resp.status);
+        console.log('Refresh response body:', errorText);
         throw new Error(`Token refresh failed: ${resp.status} - ${errorText}`);
     }
 
     const data = await resp.json();
-    console.log('Token refresh successful');
+    console.log('Token refresh response:', JSON.stringify(data, null, 2));
     if (!data.access_token) {
         throw new Error('No access_token in refresh response');
     }
+    console.log('Token refresh successful, got new access token');
     return data.access_token;
 }
 
@@ -53,6 +56,7 @@ async function fetchStravaLatest() {
     }
 
     // Fetch latest activity list
+    console.log('Fetching activities with token...');
     const listResp = await fetch('https://www.strava.com/api/v3/athlete/activities?page=1&per_page=1', {
         headers: {
             Authorization: `Bearer ${token}`
@@ -60,6 +64,9 @@ async function fetchStravaLatest() {
     });
 
     if (!listResp.ok) {
+        const errorText = await listResp.text();
+        console.log('Activities API response status:', listResp.status);
+        console.log('Activities API response body:', errorText);
         throw new Error(`Strava list fetch failed: ${listResp.status}`);
     }
 

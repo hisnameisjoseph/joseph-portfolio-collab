@@ -12,7 +12,7 @@
     /* Accent Colors */
     --accent-primary: #00cdd4;
     --accent-secondary: #7c3aed;
-    --accent-gradient: linear-gradient(135deg, #00cdd4 0%, #00b8b8 100%);
+    --accent-gradient: linear-gradient(135deg, #00cdd4 0%, #00c8c8 100%);
     
     /* Text Colors */
     --text-primary: #ffffff;

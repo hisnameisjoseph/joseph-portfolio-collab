@@ -2,10 +2,42 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 
+async function refreshStravaToken() {
+    const clientId = process.env.STRAVA_CLIENT_ID;
+    const clientSecret = process.env.STRAVA_CLIENT_SECRET;
+    const refreshToken = process.env.STRAVA_REFRESH_TOKEN;
+
+    if (!clientId || !clientSecret || !refreshToken) {
+        throw new Error('STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, and STRAVA_REFRESH_TOKEN must be set');
+    }
+
+    const resp = await fetch('https://www.strava.com/oauth/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            refresh_token: refreshToken,
+            grant_type: 'refresh_token'
+        })
+    });
+
+    if (!resp.ok) {
+        throw new Error(`Token refresh failed: ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    return data.access_token;
+}
+
 async function fetchStravaLatest() {
-    const token = process.env.STRAVA_ACCESS_TOKEN;
+    let token = process.env.STRAVA_ACCESS_TOKEN;
+
+    // If no access token provided, try to refresh using refresh token
     if (!token) {
-        throw new Error('STRAVA_ACCESS_TOKEN not set');
+        token = await refreshStravaToken();
     }
 
     // Fetch latest activity list
@@ -14,7 +46,21 @@ async function fetchStravaLatest() {
             Authorization: `Bearer ${token}`
         }
     });
-    if (!listResp.ok) throw new Error(`Strava list fetch failed: ${listResp.status}`);
+
+    if (listResp.status === 401) {
+        // Token might be expired, try refreshing
+        console.log('Access token expired, refreshing...');
+        token = await refreshStravaToken();
+        const retryResp = await fetch('https://www.strava.com/api/v3/athlete/activities?page=1&per_page=1', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!retryResp.ok) throw new Error(`Strava list fetch failed after refresh: ${retryResp.status}`);
+        listResp = retryResp;
+    } else if (!listResp.ok) {
+        throw new Error(`Strava list fetch failed: ${listResp.status}`);
+    }
 
     const listData = await listResp.json();
     if (!Array.isArray(listData) || listData.length === 0) {

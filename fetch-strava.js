@@ -90,21 +90,59 @@ async function fetchStravaLatest() {
     return activityData;
 }
 
+async function fetchSpecificActivities(token, activityIds) {
+    const activities = [];
+    for (const id of activityIds) {
+        try {
+            console.log(`Fetching activity ${id}...`);
+            const response = await fetch(`https://www.strava.com/api/v3/activities/${id}?include_all_efforts=true`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                console.warn(`Failed to fetch activity ${id}: ${response.status}`);
+                continue;
+            }
+            const activity = await response.json();
+            activities.push(activity);
+        } catch (error) {
+            console.warn(`Error fetching activity ${id}:`, error.message);
+        }
+    }
+    return activities;
+}
+
 async function main() {
     try {
-        const activity = await fetchStravaLatest();
+        // Get token first
+        let token;
+        try {
+            token = await refreshStravaToken();
+        } catch (refreshError) {
+            token = process.env.STRAVA_ACCESS_TOKEN;
+            if (!token) {
+                throw new Error('No valid token available');
+            }
+        }
+
+        const latestActivity = await fetchStravaLatest();
+        const specificActivityIds = [14161138242, 15643457626, 16604767672];
+        const specificActivities = await fetchSpecificActivities(token, specificActivityIds);
+
         const scriptPath = path.join(__dirname, 'script.js');
         let scriptContent = fs.readFileSync(scriptPath, 'utf8');
 
-        // Replace the placeholder with the actual data
-        const placeholder = 'const latestActivityData = null; // STRAVA_PLACEHOLDER';
-        const replacement = `const latestActivityData = ${JSON.stringify(activity)}; // Injected by GitHub Actions`;
+        // Replace latest activity placeholder
+        const latestPlaceholder = 'const latestActivityData = null; // STRAVA_PLACEHOLDER';
+        const latestReplacement = `const latestActivityData = ${JSON.stringify(latestActivity)}; // Injected by GitHub Actions`;
+        scriptContent = scriptContent.replace(latestPlaceholder, latestReplacement);
 
-        if (!scriptContent.includes(placeholder)) {
-            throw new Error('Placeholder not found in script.js');
-        }
+        // Replace specific activities placeholder
+        const specificPlaceholder = 'const specificActivitiesData = null; // SPECIFIC_ACTIVITIES_PLACEHOLDER';
+        const specificReplacement = `const specificActivitiesData = ${JSON.stringify(specificActivities)}; // Injected by GitHub Actions`;
+        scriptContent = scriptContent.replace(specificPlaceholder, specificReplacement);
 
-        scriptContent = scriptContent.replace(placeholder, replacement);
         fs.writeFileSync(scriptPath, scriptContent);
 
         console.log('Strava data injected successfully');

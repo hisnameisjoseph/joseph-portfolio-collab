@@ -380,6 +380,34 @@ section {
     margin-bottom: 0.5rem;
 }
 
+.activity-stats {
+    margin: 0.75rem 0;
+}
+
+.activity-stats p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.activity-map {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.activity-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.activity-link:hover {
+    color: var(--accent-secondary);
+}
+
 .activity-card--live {
     background: linear-gradient(135deg, rgba(0,205,212,0.12), rgba(0,184,184,0.09));
     border-color: rgba(0,205,212,0.4);
